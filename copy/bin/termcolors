@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+# Terminal colors
+# NOTE: the \[ and \] are necessary to keep bash from counting all of the
+# chars in the control codes during line-wrapping. Don't remove them!
+UNAME="$(uname)"
+if [ "$UNAME" = "FreeBSD" ]; then
+    FG_CMD="AF";
+    BG_CMD="AB";
+    RST_CMD="me";
+else #elif [ "$UNAME" = "Linux" -o "$UNAME" = "Darwin" ]; then
+    FG_CMD="setaf";
+    BG_CMD="setab";
+    RST_CMD="sgr0";
+fi
+
+black_ctrl="$(tput $FG_CMD 0)";
+red_ctrl="$(tput $FG_CMD 1)";
+green_ctrl="$(tput $FG_CMD 2)";
+yellow_ctrl="$(tput $FG_CMD 3)";
+blue_ctrl="$(tput $FG_CMD 4)";
+magenta_ctrl="$(tput $FG_CMD 5)";
+cyan_ctrl="$(tput $FG_CMD 6)";
+white_ctrl="$(tput $FG_CMD 7)";
+reset_ctrl="$(tput $RST_CMD)"
+
+black_bg_ctrl="$(tput $BG_CMD 0)";
+red_bg_ctrl="$(tput $BG_CMD 1)";
+green_bg_ctrl="$(tput $BG_CMD 2)";
+yellow_bg_ctrl="$(tput $BG_CMD 3)";
+blue_bg_ctrl="$(tput $BG_CMD 4)";
+magenta_bg_ctrl="$(tput $BG_CMD 5)";
+cyan_bg_ctrl="$(tput $BG_CMD 6)";
+white_bg_ctrl="$(tput $BG_CMD 7)";
+

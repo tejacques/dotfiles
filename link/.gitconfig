@@ -1,0 +1,16 @@
+[user]
+	name = Tom Jacques
+	email = tejacques@gmail.com
+[alias]
+    st = status -sb
+    ci = commit
+    br = branch
+    co = checkout
+    df = diff
+    ready = rebase -i @{u}
+    lg = log --pretty=format:'%Cred%h%Creset\t%C(bold blue)<%an>%Creset\t%Cgreen(%cr)\t%Creset- %s%Creset'
+    get = !bash -c 'git fetch "$0" && git rebase -p "$0"'
+[color]
+	ui = auto
+[credential]
+	helper = cache

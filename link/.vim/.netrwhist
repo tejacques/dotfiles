@@ -1,0 +1,11 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =9
+let g:netrw_dirhist_1='/cygdrive/c/Users/tj/DateHookup/datehookup/tags/DotNet2CompatibleLegacyCode/Dh/Properties'
+let g:netrw_dirhist_2='/cygdrive/c/Users/tj/DateHookup/datehookup/tags/DotNet2CompatibleLegacyCode/Dh/Properties/PublishProfiles'
+let g:netrw_dirhist_3='/cygdrive/c/Users/tj/DateHookup/datehookup/tags/DotNet2CompatibleLegacyCode/Dh/Properties'
+let g:netrw_dirhist_4='/home/tj/.subversion'
+let g:netrw_dirhist_5='/home/tj/.subversion/auth/svn.ssl.server'
+let g:netrw_dirhist_6='/home/tj/.subversion'
+let g:netrw_dirhist_7='/home/tj/DateHookup/datehookup/.git'
+let g:netrw_dirhist_8='/home/tj/DateHookup/datehookup/trunk/Scripts/Python'
+let g:netrw_dirhist_9='/home/tj/DateHookup/datehookup/.git/hooks'

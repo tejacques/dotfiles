@@ -1,0 +1,69 @@
+#!/usr/bin/bash
+
+# Takes a file with a list of options, and builds a simple "pick-one" dialog
+# menu out of them.
+
+if ! which dialog >/dev/null; then
+    echo "ERROR: 'dialog' not installed" 1>&2
+    exit 1
+fi
+
+MARGIN=6
+CHROME=7
+
+function min {
+    _min=9999999999
+    for i in $*; do
+        if [ $i -lt $_min ]; then
+            _min=$i
+        fi
+    done
+    echo $_min
+}
+
+function max {
+    _max=-9999999999
+    for i in $*; do
+        if [ $i -gt $_max ]; then
+            _max=$i
+        fi
+    done
+    echo $_max
+}
+
+function dialog_dims {
+    content_dims=()
+    read content_lines content_cols <<< "$(echo "$1" | wc -l -L)"
+    win_height=$(tput lines)
+    win_width=$(tput cols)
+    opts_height=$(min $(($content_lines)) $(($win_height - $MARGIN - $CHROME)))
+    page_height=$(($opts_height + $CHROME))
+    page_width=$(min $(($content_cols + $CHROME)) $(($win_width - $MARGIN)))
+    echo $page_height $page_width $opts_height
+}
+
+input=$(cat)
+if [ -z "$input" ]; then
+    exit 1
+fi
+
+# Add quotes so that each line remains its own entity
+contents="$(echo "$input" | sed 's/\(.*\)/"\1"/' | nl)"
+
+# Calculate the size of the required dialog box
+dims=$(dialog_dims "$contents")
+
+# Cut out tabs and newlines. Like xargs except with less quote fuckery.
+ol_contents=$(tr '      \n' '  ' <<< "$contents")
+
+cmd="dialog --menu \"Simple Dialog\" $dims "$ol_contents
+# echo "$cmd"; exit 1
+
+res=$(eval "$cmd" 3>&2 2>&1 1>&3 </dev/tty)
+rc=$?
+if [ $rc -ne 0 ]; then
+    # echo "errcode: $rc" 1>&2
+    exit 1
+fi
+
+echo "$contents" | grep "^ *$res\>" | awk -F'"' '{print $2}'

@@ -22,14 +22,16 @@ function copy_file() {
     local base=$1
     local dest=$2
     e_success "Copying ~/$base"
-    cp "$dest" ~/
+    echo cp "$dest" ~/
+#    cp "$dest" ~/
 }
 
 function link_file() {
     local base=$1
     local dest=$2
     e_success "Linking ~/$base"
-    ls -sf ${dest#$HOME/} ~/
+    echo ls -sf ${dest#$HOME/} ~/
+    #ls -sf ${dest#$HOME/} ~/
 }
 
 function do_stuff() {
@@ -37,24 +39,42 @@ function do_stuff() {
     local cmd=$1
     local dir=$2
     local files=(~/dotfiles/$dir/*)
+    local files2=~/dotfiles/$dir
+
+    echo files: $files
     if (( ${#files[@]} == 0 )); then return; fi
 
-    for file in "$(files[@]})"; do
+    #for file in "${files[@]}"; do
+    for file in "$files2/*"; do
+        echo ""
         base="$(basename $file)"
         dest="$HOME/$base"
 
+        echo file $file
+        echo base $base
+        echo dest $dest
+
         # Destination file already exists in ~/. Back it up!
         if [[ -e "$dest" ]]; then
-            backup_file "$base" "$dest"
+            echo "backing up $dest"
+#            backup_file "$base" "$dest"
         fi
 
-        "$cmd_file" "$base" "$file"
+        "$cmd""_file" "$base" "$file"
     done
 }
 
 backup_dir="$HOME/.dotfiles/backups/$(date "+%Y_%m_%d-%H_%M_%S")/"
 
+echo ""
+echo ""
+echo 'do_stuff "copy" "copy"'
 do_stuff "copy" "copy"
+
+
+echo ""
+echo ""
+echo 'do_stuff "link" "link"'
 do_stuff "link" "link"
 
 

@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # Takes a file with a list of options, and builds a simple "pick-one" dialog
 # menu out of them.

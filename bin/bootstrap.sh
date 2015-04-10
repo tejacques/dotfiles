@@ -1,4 +1,7 @@
-#!/usr/bin/bash
+#!/bin/bash
+
+# GLOB IGNORE
+GLOBIGNORE='.:..'
 
 # Logging stuff.
 function e_header()   { echo -e "\n\033[1m$@\033[0m"; }
@@ -13,8 +16,13 @@ function backup_file() {
     # Set backup flag, so a nice message can be shown at the end.
     backup=1
     # Create backup dir if it doesn't already exist.
-    [[ -e "$backup_dir" ]] || mkdir -p "$backup_dir"
+    if [[ -ne "$backup_dir" ]]
+    then
+        e_arrow "Making backup directory: $backup_dir"
+        mkdir -p "$backup_dir"
+    fi
     # Backup file / link / whatever.
+    echo mv "$dest" "$backup_dir"
     mv "$dest" "$backup_dir"
 }
 
@@ -23,15 +31,15 @@ function copy_file() {
     local dest=$2
     e_success "Copying ~/$base"
     echo cp "$dest" ~/
-#    cp "$dest" ~/
+    cp "$dest" ~/
 }
 
 function link_file() {
     local base=$1
     local dest=$2
     e_success "Linking ~/$base"
-    echo ls -sf ${dest#$HOME/} ~/
-    #ls -sf ${dest#$HOME/} ~/
+    echo ln -sf ${dest#$HOME/} ~/
+    ln -sf ${dest#$HOME/} ~/
 }
 
 function do_stuff() {
@@ -44,8 +52,7 @@ function do_stuff() {
     echo files: $files
     if (( ${#files[@]} == 0 )); then return; fi
 
-    #for file in "${files[@]}"; do
-    for file in "$files2/*"; do
+    for file in "${files[@]}"; do
         echo ""
         base="$(basename $file)"
         dest="$HOME/$base"
@@ -56,15 +63,15 @@ function do_stuff() {
 
         # Destination file already exists in ~/. Back it up!
         if [[ -e "$dest" ]]; then
-            echo "backing up $dest"
-#            backup_file "$base" "$dest"
+            backup_file "$base" "$dest"
         fi
 
         "$cmd""_file" "$base" "$file"
     done
 }
 
-backup_dir="$HOME/.dotfiles/backups/$(date "+%Y_%m_%d-%H_%M_%S")/"
+# backup_base="$HOME/dotfiles/backups"
+backup_dir="$HOME/dotfiles/backups/$(date "+%Y_%m_%d-%H_%M_%S")/"
 
 echo ""
 echo ""

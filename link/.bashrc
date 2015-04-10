@@ -1,5 +1,22 @@
 # .bashrc
 
+# Platform
+platform="Unknown"
+unamestr=$(uname -s)
+if [[ "$unamestr" == 'Linux' ]]; then
+    platform="Linux"
+elif [[ "$unamestr" == 'FreeBSD' ]]; then
+    platform="BSD"
+elif [[ "$unamestr" == 'Darwin' ]]; then
+    platform="OSX"
+elif [[ "$unamestr" == CYGWIN* ]]; then
+    platform="Cygwin"
+elif [[ "$unamestr" == MSYS* ]]; then
+    platform="Windows"
+elif [[ "$unamestr" == MINGW* ]]; then
+    platform="MinGW"
+fi
+
 # don't put duplicate lines in the history. See bash(1) for more options
 # ... or force ignoredups and ignorespace
 HISTCONTROL=ignoredups:ignorespace
@@ -136,10 +153,11 @@ function pc {
     PS1_GIT_COLOR="\[$yellow_ctrl\]"
     PS1_RST="\[$reset_ctrl\]"
 
-    if [ "$LHC" = "$CHC" ]; then
-        PS1_EXIT_COLOR="$PS1_RST"
-        PS1_EXIT_MARK=" "
-    elif [ "$EXIT_STATUS" -eq 0 ]; then
+#    if [ "$LHC" = "$CHC" ]; then
+#        PS1_EXIT_COLOR="$PS1_RST"
+#        PS1_EXIT_MARK=" "
+#    elif [ "$EXIT_STATUS" -eq 0 ]; then
+    if [ "$EXIT_STATUS" -eq 0 ]; then
         PS1_EXIT_COLOR="\[$green_ctrl\]"
         PS1_EXIT_MARK="✓" # Check mark (\xE2\x9C\x93)
         # PS1_EXIT_MARK=">" # Check mark (\xE2\x9C\x93)
@@ -151,7 +169,7 @@ function pc {
     LHC=$CHC
 
     if ! type __git_ps1 &>/dev/null; then
-        PS1_GIT_INFO=" no git"
+        PS1_GIT_INFO=""
     else
         PS1_GIT_INFO="$(__git_ps1)"
     fi
@@ -208,7 +226,19 @@ fi
 
 export EDITOR=vim
 export DISPLAY=:0.0
-WINGIT="/cygdrive/c/Program\ Files\ \(x86\)/Git/bin:/"
-export VS90COMNTOOLS="/cygdrive/c/Program\ Files\ \(x86\)/Microsoft Visual Studio 11.0/Common7/Tools/"
-export PATH=/cygdrive/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio\ 11.0/:/cygdrive/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio\ 11.0/VC/:/cygdrive/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio\ 11.0/Common7/Tools:/home/tj/DateHookup/datehookup/trunk/Scripts/LaunchScripts:/cygdrive/c/Python33/:/cygdrive/c/Python33/Scripts:$PATH
 
+# All
+export PATH=$HOME/bin:$PATH
+
+case $platform in
+    Linux)
+        ;;
+    BSD)
+        ;;
+    Darwin)
+        ;;
+    Windows)
+        ;;
+    Cygwin)
+        ;;
+esac

@@ -46,7 +46,7 @@ function backup_file() {
     if cp -r "$dest" "$backup_dir"
     then
         e_success $msg
-    else
+    elif
         e_error $msg
     fi
 }
@@ -58,7 +58,7 @@ function copy_file() {
     if cp -r "$dest" ~/
     then
         e_success $msg
-    else
+    elif
         e_error $msg
     fi
 }
@@ -71,7 +71,7 @@ function link_file() {
     if ln -sf ${dest#$HOME/} ~/
     then
         e_success $msg
-    else
+    elif
         e_error $msg
     fi
 }

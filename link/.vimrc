@@ -30,7 +30,6 @@ let g:VIM_CUSTOM = "~/.vim_custom/"
 set cindent
 set autoindent
 set visualbell
-set background=dark
 set showmatch
 set showcmd
 set autowrite
@@ -125,21 +124,12 @@ set clipboard+=unnamed
 "                 Color scheme                   "
 """"""""""""""""""""""""""""""""""""""""""""""""""
 
-" Some custom color modifications.  reference :help highlight and :help cterm
-" set mode message ( --INSERT-- ) to green
-" highlight ModeMsg cterm=bold ctermfg=2 ctermbg=black
-" set the active statusline to black on white
-"highlight StatusLine ctermfg=white ctermbg=black
-" set inactive statusline to black on grey
-"highlight StatusLineNC ctermfg=8 ctermbg=black
-
 autocmd!
 let fullpath = getcwd() . bufname("%")
 if match(fullpath, "okcontent") != -1
     autocmd BufNewFile,BufRead *.html,*.pub,*.lib,*.dict set filetype=pub
 endif
 
-syntax on
 filetype on
 au BufNewFile,BufRead *.T,*.Th,*.x,*.v set filetype=cpp
 
@@ -148,7 +138,7 @@ au BufNewFile,BufRead *.T,*.Th,*.x,*.v set filetype=cpp
 """"""""""""""""""""""""""""""""""""""""""""""""""
 
 let &colorcolumn=join(range(80,999),",")
-highlight ColorColumn ctermbg=8 guibg=#2c2d27
+"highlight ColorColumn ctermbg=234 guibg=#2c2d27
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
 "                   Key maps                     "
@@ -188,6 +178,17 @@ if ! has('gui_running')
     au InsertLeave * set timeoutlen=50
   augroup END
 endif
+
+""""""""""""""""""""""""""""""""""""""""""""""""""
+"               Solarized Config                 "
+""""""""""""""""""""""""""""""""""""""""""""""""""
+syntax on
+set background=dark
+let g:solarized_visibility="high"
+let g:solarized_contrast="high"
+let g:solarized_termcolors=256
+colorscheme solarized
+set background=dark
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
 "                NerdTree Config                 "

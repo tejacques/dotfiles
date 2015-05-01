@@ -29,3 +29,11 @@ bindkey ^N screen
 
 # bindkey ^@ copy
 defscrollback 10000
+
+termcapinfo xterm* ti@:te@
+#termcapinfo screen* ti@:te@
+#termcapinfo xterm* ti=:te=
+term screen-256color
+
+maptimeout 0
+altscreen on

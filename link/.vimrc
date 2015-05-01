@@ -1,35 +1,137 @@
+set nocompatible              " be iMproved, required
+filetype off                  " required
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+""""""""""""""""""""""""""""""""""""""""""""""""""
+"                Vundle Plugins                  "
+""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Let Vundle Manage Itself
+Plugin 'gmarik/Vundle.vim'
+
+" Plugins
+Plugin 'Valloric/YouCompleteMe'
+Plugin 'scrooloose/nerdtree'
+Plugin 'tpope/vim-fugitive'
+Plugin 'bling/vim-airline'
+Plugin 'altercation/vim-colors-solarized'
+
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+filetype plugin indent on    " required
+
 " Global variable which holds the path to my customization files
 " You'll need to edit this so it matches your system
-let g:VIM_CUSTOM = "/home/jesse/.vim_custom/"
+let g:VIM_CUSTOM = "~/.vim_custom/"
 
 set cindent
-set smartindent
 set autoindent
 set visualbell
 set background=dark
-set tabstop=4
 set showmatch
 set showcmd
 set autowrite
 set backspace=2 " make backspace work like most other apps
-set mouse=a
+
+" Line numbers
 set nu
-set ruler
+set relativenumber
+
 set expandtab
 set shiftwidth=4
+set tabstop=4
 set ignorecase
-set smartcase
-set incsearch
+set smartindent
 set encoding=utf-8
+set wrap
+
+set lazyredraw
+
+" Searching
+set magic
+set smartcase
+set hlsearch
+set incsearch
+
+" Fix mouse
+if has("mouse")
+  set mouse=a
+  set mousehide
+  if has("mouse_sgr")
+    set ttymouse=sgr
+  else
+    set ttymouse=xterm2
+  end
+end
+
+" Wildmenu
+set wildmenu
+
+" Add a bit of extra margin on the left
+set foldcolumn=1
+
+" 7 lines of scroll buffer at the bottom/top
+set scrolloff=7
+
+" Jump 5 lines at a time when at the edge
+" set scrolljump=5
+
+" Return to last edit position when opening files (You want this!)
+autocmd BufReadPost *
+     \ if line("'\"") > 0 && line("'\"") <= line("$") |
+     \   exe "normal! g`\"" |
+     \ endif
+" Remember info about open buffers on close
+set viminfo^=%
+
+" UI Tweaks
+set noshowmode    " Display the current mode
+" set cursorline  " Highlight current line
+
+
+if has('cmdline_info')
+  set ruler                   " Show the ruler
+"  set rulerformat=%30(%=\:b%n%y%m%r%w\ %l,%c%V\ %P%) " A ruler on steroids
+"  set showcmd                 " Show partial commands in status line and
+                              " Selected characters/lines in visual moe
+endif
+
+if has('statusline')
+  set laststatus=2
+
+  " Broken down into easily includeable segments
+"  set statusline=%<%f\                     " Filename
+"  set statusline+=%w%h%m%r                 " Options
+"  if !exists('g:override_spf13_bundles')
+"    set statusline+=%{fugitive#statusline()} " Git Hotness
+"  endif
+"  set statusline+=\ [%{&ff}/%Y]            " Filetype
+"  set statusline+=\ [%{getcwd()}]          " Current dir
+"  set statusline+=%=%-14.(%l,%c%V%)\ %p%%  " Right aligned file nav info
+endif
+
+set list
+set listchars=tab:›\ ,trail:•,extends:#,nbsp:.
+
+set whichwrap=b,s,h,l,<,>,[,]
+
+" Yanking copies to Clipboard
+set clipboard+=unnamed
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
 "                 Color scheme                   "
 """"""""""""""""""""""""""""""""""""""""""""""""""
 
 " Some custom color modifications.  reference :help highlight and :help cterm
-highlight ModeMsg cterm=bold ctermfg=2 ctermbg=black	" set mode message ( --INSERT-- ) to green
-highlight StatusLine ctermfg=7 ctermbg=9		" set the active statusline to black on white
-highlight StatusLineNC ctermfg=8 ctermbg=9		" set inactive statusline to black on grey
+" set mode message ( --INSERT-- ) to green
+" highlight ModeMsg cterm=bold ctermfg=2 ctermbg=black
+" set the active statusline to black on white
+"highlight StatusLine ctermfg=white ctermbg=black
+" set inactive statusline to black on grey
+"highlight StatusLineNC ctermfg=8 ctermbg=black
 
 autocmd!
 let fullpath = getcwd() . bufname("%")
@@ -41,86 +143,73 @@ syntax on
 filetype on
 au BufNewFile,BufRead *.T,*.Th,*.x,*.v set filetype=cpp
 
-
-vmap <C-c> !sneakyvimcopy<CR>u
-nnoremap <C-y> :r /home/u0/tj/.vim_swap<CR>
-
 """"""""""""""""""""""""""""""""""""""""""""""""""
-"              Function Key maps                 "
+"                 Color scheme                   "
 """"""""""""""""""""""""""""""""""""""""""""""""""
 
-" Re-source the default vimrc
-map <F2> :execute Clean_up()<CR> :source $HOME/.vimrc<CR>
+let &colorcolumn=join(range(80,999),",")
+highlight ColorColumn ctermbg=8 guibg=#2c2d27
 
-" C/C++ Programming 
-map <F3> :execute Clean_up()<CR> :execute Re_source("c-vimrc")<CR>
+""""""""""""""""""""""""""""""""""""""""""""""""""
+"                   Key maps                     "
+""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" shell programming
-map <F4> :execute Clean_up()<CR> :execute Re_source("bash-vimrc")<CR>
-
-" php programming
-map <F5> :execute Clean_up()<CR> :execute Re_source("php-vimrc")<CR>
-
-" sgml editing
-map <F6> :execute Clean_up()<CR> :execute Re_source("sgml-vimrc")<CR>
-
-" Once you invoke this you need to delete rows and type in the # you wish
-" to process
-map <F11> :execute Dump_extra_whitespace(rows)
-
-" Reverse the background color
-map <F12> :execute ReverseBackground()<CR>
+" Tab and Shift-Tab to indent / unindent
+nmap <Tab> >>
+nmap <s-tab> <<
+"inoremap <Tab> <C-o>>>
+"inoremap <s-tab> <C-o><<
+vmap <tab> >gv
+vmap <s-tab> <gv
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
 "              Custom functions                  "
 """"""""""""""""""""""""""""""""""""""""""""""""""
 
-" Re-source the rc files
-:function! Re_source(file_name)
-: let path_file_name = g:VIM_CUSTOM . a:file_name
-:  if filereadable(path_file_name)
-:  	execute 'source ' . path_file_name
-:  	echo path_file_name . " Loaded sucessfully"
-:  else
-:  	echo path_file_name . " does NOT exist"
-:  	return 0
-:  endif
-:endfunction
+" Relative Numbers in normal mode
+" Absolute numbers in insert mode
+augroup RelativeNumbers
+  autocmd InsertEnter * :set norelativenumber
+  autocmd InsertLeave * :set relativenumber
+augroup END
 
-" This function allows me to quickly remove extra tabs and whitespace
-" from the beginning of lines.  This seems to be a problem when I cut
-" and paste or when people don't use resizeable tabs.
-" TODO The only problem with this is after you execute it it jumps to the 
-" beginning of the file.  I need to figure out how to fix that.
-:function! Dump_extra_whitespace(rows)
-:	let com = ".,+" . a:rows . "s/^[ 	]*//g"
-:	execute com
-:endfunction
+" When foxus is lost use absolute numbers
+augroup RelativeNumbersFocus
+  autocmd FocusLost * :set norelativenumber
+  autocmd FocusGained * :set relativenumber
+augroup END
 
-" This function was created by Dillon Jones (much better than my first attempt)
-" it reverses the background color for switching between vim/gvim which have
-" different defaults.
-" TODO The only problem with this is after you execute it it jumps to the 
-" beginning of the file.  I need to figure out how to fix that.
-:function! ReverseBackground()
-: let Mysyn=&syntax
-: if &bg=="light"
-: se bg=dark
-: else
-: se bg=light
-: endif
-: syn on
-: exe "set syntax=" . Mysyn
-":   echo "now syntax is "&syntax
-:endfunction
+" leave insert mode quickly (or at least slightly quicker)
+if ! has('gui_running')
+  set ttimeoutlen=10
+  augroup FastEscape
+    autocmd!
+    au InsertEnter * set timeoutlen=0
+    au InsertLeave * set timeoutlen=50
+  augroup END
+endif
+
+""""""""""""""""""""""""""""""""""""""""""""""""""
+"                NerdTree Config                 "
+""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Load NERDTree on startup
+autocmd VimEnter * NERDTree
+" Set the cursor to the non NERDTree window
+autocmd VimEnter * wincmd p
+
+"autocmd StdinReadPre * let s:std_in=1
+"autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+
+" Close NERDTree if it is the last window
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType")
+            \&& b:NERDTreeType == "primary") | q | endif
 
 
-" Cleanup
-:function! Clean_up()
-:set visualbell&
-:set background&
-:set tabstop&
-:set showmatch&
-:set showcmd&
-:set autowrite&
-:endfunction
+""""""""""""""""""""""""""""""""""""""""""""""""""
+"                Airline Config                  "
+""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let g:airline_powerline_fonts=1
+let g:airline_theme='wombat'
+let g:airline#extensions#whitespace#enabled=0

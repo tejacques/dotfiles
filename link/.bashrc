@@ -40,7 +40,7 @@ case "$-" in
     *i*) _INTERACTIVE_MODE=1 ;;
 esac
 
-# Function to verbosely source files (if interactive) and 
+# Function to verbosely source files (if interactive) and
 function _source {
     if test -e "$1"; then
         if [ "$_INTERACTIVE_MODE" ]; then
@@ -91,8 +91,8 @@ jobmenu () {
     fi
 }
 
-jobmenu () 
-{ 
+jobmenu ()
+{
     read jid < <(jobs | simpledialog | awk '{print $1}' | grep -o "[0-9]\{1,\}") && fg $jid;
 }
 
@@ -228,6 +228,7 @@ export EDITOR=vim
 export DISPLAY=:0.0
 
 # All
+export FORCE_COLOR=1
 export PATH=$HOME/bin:$PATH
 
 case $platform in

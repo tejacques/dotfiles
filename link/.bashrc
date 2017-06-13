@@ -56,28 +56,19 @@ function _source {
     return 1
 }
 
-### BEGIN screen preexec / premd trickery ###
+ST_START='\033k'
+ST_STOP='\033\\'
 
+### BEGIN screen preexec / premd trickery ###
+microtime() {
+    python -c 'import time; print time.time()'
+}
 # If runing in screen, set the window title to the command about to be executed
 #last_history_line=0
 preexec () {
-    echo -en '\033k'$1'\033\\'
+    echo -en $ST_START$1$ST_STOP
+    PRE_CMD_TIME=$(microtime)
 }
-_invoke_exec () {
-    if [ -n "$COMP_LINE" ]
-    then
-        postexec
-    else
-         # current_history_line=`history 1 | awk '{print $1}'` ;
-         # if [ $current_history_line -gt $last_history_line ]
-         # then
-            # last_history_line=$current_history_line
-        local this_command=`history 1 | awk '{print $2}'`;
-        preexec "$this_command"
-        # fi
-    fi
-}
-trap '_invoke_exec' DEBUG
 
 ### END screen preexec / postexec trickery ###
 
@@ -102,8 +93,6 @@ if [ "$_INTERACTIVE_MODE" ]; then
 fi
 
 
-ST_START='\033k'
-ST_STOP='\033\\'
 if [ -z "$TERM_TITLE" ]; then
     TERM_TITLE="${HOSTNAME/.*/}"
 fi
@@ -113,18 +102,10 @@ if [ "$_INTERACTIVE_MODE" ]; then
     if ! _source $HOME/bin/termcolors; then
         echo "No terminal color file found. Terminal will be boring."
     fi
-fi
-
-function get_job_str {
-    if [ "$1" = "0" ]; then
-        jobstr=""
-    else
-        jobstr=" [$1]"
+    if ! _source $HOME/bin/.bash-preexec.sh; then
+        echo "No preexec found"
     fi
-    echo "$jobstr"
-}
-
-
+fi
 
 function get_job_str {
     if [ "$1" = "0" ]; then
@@ -136,8 +117,10 @@ function get_job_str {
 }
 
 export HISTCMD
-function pc {
-    EXIT_STATUS=$?
+function precmd() {
+    CMD_STATUS=$?
+
+    echo -en '\033kprompt\033\\'
     CHC=$(history 1)
 
     if [ "$TERM" == "screen" -a "$_INTERACTIVE_MODE" ]; then
@@ -145,6 +128,7 @@ function pc {
     fi
 
     # Set PS1
+    PS1_TIME_COLOR="\[$magenta_ctrl\]"
     PS1_USER_COLOR="\[$cyan_ctrl\]"
     PS1_HOST_COLOR="\[$cyan_ctrl\]"
     PS1_JOBS_COLOR="\[$cyan_ctrl\]"
@@ -153,18 +137,17 @@ function pc {
     PS1_GIT_COLOR="\[$yellow_ctrl\]"
     PS1_RST="\[$reset_ctrl\]"
 
-#    if [ "$LHC" = "$CHC" ]; then
-#        PS1_EXIT_COLOR="$PS1_RST"
-#        PS1_EXIT_MARK=" "
-#    elif [ "$EXIT_STATUS" -eq 0 ]; then
-    if [ "$EXIT_STATUS" -eq 0 ]; then
-        PS1_EXIT_COLOR="\[$green_ctrl\]"
-        PS1_EXIT_MARK="✓" # Check mark (\xE2\x9C\x93)
-        # PS1_EXIT_MARK=">" # Check mark (\xE2\x9C\x93)
+    if [ "$PRE_CMD_TIME" != "" ]; then
+        if [ $CMD_STATUS -eq 0 ]; then
+            PS1_EXIT_COLOR="\[$green_ctrl\]"
+            PS1_EXIT_MARK="✓" # Check mark (\xE2\x9C\x93)
+        elif [ "$CMD_STATUS" -gt 0 ]; then
+            PS1_EXIT_COLOR="\[$red_ctrl\]"
+            PS1_EXIT_MARK="✕" # X (\xE2\x9C\x95)
+        fi
     else
-        PS1_EXIT_COLOR="\[$red_ctrl\]"
-        PS1_EXIT_MARK="✕" # X (\xE2\x9C\x95)
-        # PS1_EXIT_MARK=">" # X (\xE2\x9C\x95)
+        PS1_EXIT_COLOR="$PS1_RST"
+        PS1_EXIT_MARK=" "
     fi
     LHC=$CHC
 
@@ -177,17 +160,23 @@ function pc {
     if [ "$TERM" == "screen" ]; then
         # GNU Screen: num jobs
         # Note: The whole thing is non-printing as far as bash is concerned
-        PS1+="\[${ST_START}${TERM_TITLE}"'$(get_job_str \j)'"${ST_STOP}\]"
+        NOTHING=""
+        #PS1+="\[${ST_START}${TERM_TITLE}"'$(get_job_str \j)'"${ST_STOP}\]"
     fi
     PS1+="${PS1_EXIT_COLOR}${PS1_EXIT_MARK}${PS1_RST} "
+    PS1+="[${PS1_TIME_COLOR}\D{%F %T}${PS1_RST}]-"
+    if [ "$PRE_CMD_TIME" != "" ]; then
+        POST_CMD_TIME="$(microtime)"
+        CMD_TIME=$(echo $POST_CMD_TIME - $PRE_CMD_TIME | bc)
+        PRE_CMD_TIME=""
+        PS1+="[${PS1_TIME_COLOR}$CMD_TIME${PS1_RST}]-"
+    fi
     PS1+="[${PS1_USER_COLOR}\u${PS1_RST}@$PS1_HOST_COLOR\h${PS1_RST}]-"
     PS1+="[${PS1_JOBS_COLOR}\j${PS1_RST}]-"
     PS1+="[${PS1_PATH_COLOR}\w${PS1_RST}]"
     PS1+="${PS1_GIT_COLOR}${PS1_GIT_INFO}${PS1_RST} "
     PS1+="${PS1_DOLLAR_COLOR}\$${PS1_RST} "
 }
-PROMPT_COMMAND="pc"
-
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -224,6 +213,10 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
 
+if [ -f `brew --prefix`/etc/bash_completion ]; then
+    . `brew --prefix`/etc/bash_completion
+fi
+
 export EDITOR=vim
 export DISPLAY=:0.0
 
@@ -231,15 +224,31 @@ export DISPLAY=:0.0
 export FORCE_COLOR=1
 export PATH=$HOME/bin:$PATH
 
+echo Platform: $platform
 case $platform in
     Linux)
         ;;
     BSD)
         ;;
-    Darwin)
+    OSX)
+        export NVM_DIR=~/.nvm
+        source $(brew --prefix nvm)/nvm.sh
+        PATH="/usr/local/opt/llvm/bin/:$PATH"
         ;;
     Windows)
         ;;
     Cygwin)
         ;;
+    *)
+        ;;
 esac
+
+if ! _source $HOME/bin/ssh-find-agent.sh; then
+    echo "No ssh-find-agent found in $HOME/bin"
+fi
+ssh-find-agent -a
+if [ -z "$SSH_AUTH_SOCK" ]
+then
+   eval $(ssh-agent) > /dev/null
+   ssh-add -l >/dev/null || alias ssh='ssh-add -l >/dev/null || ssh-add && unalias ssh; ssh'
+fi

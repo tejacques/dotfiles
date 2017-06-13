@@ -3,7 +3,10 @@ filetype off                  " required
 
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
+
+so ~/.vim/local.vim
 call vundle#begin()
+so ~/.vim/localPlugins.vim
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
 "                Vundle Plugins                  "
@@ -15,8 +18,14 @@ Plugin 'gmarik/Vundle.vim'
 " Plugins
 Plugin 'Valloric/YouCompleteMe'
 Plugin 'tpope/vim-fugitive'
-Plugin 'bling/vim-airline'
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
 Plugin 'altercation/vim-colors-solarized'
+Plugin 'leafgarland/typescript-vim'
+Plugin 'andviro/flake8-vim'
+Plugin 'vim-jp/vim-cpp'
+Plugin 'ctrlpvim/ctrlp.vim'
+Plugin 'airblade/vim-gitgutter'
 
 "call vundle#config#require(g:bundles)
 " All of your Plugins must be added before the following line
@@ -103,26 +112,30 @@ if has('statusline')
 
 endif
 
-set list
-set listchars=tab:›\ ,trail:•,extends:#,nbsp:.
+" set listchars=tab:>\ ,trail:•,extends:#,nbsp:.
+" set list
+"set listchars=trail:•,extends:#,nbsp:.
 
 set whichwrap=b,s,h,l,<,>,[,]
 
 " Yanking copies to Clipboard
 set clipboard+=unnamed
 
+"  Tags
+set tags+=tags;/
+
 """"""""""""""""""""""""""""""""""""""""""""""""""
 "                 Color scheme                   "
 """"""""""""""""""""""""""""""""""""""""""""""""""
 
-autocmd!
-let fullpath = getcwd() . bufname("%")
-if match(fullpath, "okcontent") != -1
-    autocmd BufNewFile,BufRead *.html,*.pub,*.lib,*.dict set filetype=pub
-endif
-
-filetype on
-au BufNewFile,BufRead *.T,*.Th,*.x,*.v set filetype=cpp
+"autocmd!
+"let fullpath = getcwd() . bufname("%")
+"if match(fullpath, "okcontent") != -1
+"    autocmd BufNewFile,BufRead *.html,*.pub,*.lib,*.dict set filetype=pub
+"endif
+"
+"filetype on
+"au BufNewFile,BufRead *.T,*.Th,*.x,*.v set filetype=cpp
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
 "                 Color scheme                   "
@@ -136,12 +149,13 @@ let &colorcolumn=join(range(80,999),",")
 """"""""""""""""""""""""""""""""""""""""""""""""""
 
 " Tab and Shift-Tab to indent / unindent
-nmap <Tab> >>
-nmap <s-tab> <<
+"nmap <Tab> >>
+"nmap <s-tab> <<
 "inoremap <Tab> <C-o>>>
 "inoremap <s-tab> <C-o><<
 vmap <tab> >gv
 vmap <s-tab> <gv
+nnoremap <F6> :!~/bin/mk<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
 "              Custom functions                  "
@@ -205,3 +219,29 @@ set background=dark
 let g:airline_powerline_fonts=1
 let g:airline_theme='dark'
 let g:airline#extensions#whitespace#enabled=0
+
+""""""""""""""""""""""""""""""""""""""""""""""""""
+"                YouCompleteMe                   "
+""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let g:ycm_server_keep_logfiles = 1
+let g:ycm_server_use_vim_stdout = 1
+let g:ycm_server_log_level = 'debug'
+
+""""""""""""""""""""""""""""""""""""""""""""""""""
+"               Typescript-Vim                   "
+""""""""""""""""""""""""""""""""""""""""""""""""""
+
+autocmd QuickFixCmdPost [^l]* nested cwindow
+autocmd QuickFixCmdPost    l* nested lwindow
+
+" YCM Interop
+if !exists("g:ycm_semantic_triggers")
+   let g:ycm_semantic_triggers = {}
+endif
+let g:ycm_semantic_triggers['typescript'] = ['.']
+
+""""""""""""""""""""""""""""""""""""""""""""""""""
+"               Vim GitGutter                    "
+""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:gitgutter_max_signs=10000

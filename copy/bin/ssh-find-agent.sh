@@ -117,9 +117,7 @@ find_live_ssh_agents() {
 
 function fingerprints() {
     local file="$1"
-    while read l; do
-        [[ -n $l && ${l###} = $l ]] && ssh-keygen -l -f /dev/stdin <<<$l
-    done < $file
+    [[ -n $file && ${file###} = $file ]] && ssh-keygen -l -f $file
 }
 
 find_all_agent_sockets() {
